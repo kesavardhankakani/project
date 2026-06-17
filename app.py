@@ -67,6 +67,24 @@ def get_data():
           "email":data[3]
      }),200
 
+
+@app.route("/update_data", methods = ['PUT'])
+def update_data():
+     data = request.get_json()
+     stu_id = data.get('stu_id')
+     stu_name = data.get('stu_name')
+     stu_roll = data.get('stu_roll')
+     email = data.get('email')
+     connection = get_db_connection()
+     cur = connection.cursor()
+     cur.execute("""
+         update stu_table set stu_name=%s,stu_roll=%s,email=%s where stu_id=%s
+""",(stu_name,stu_roll,email,stu_id))
+     connection.commit()
+     cur.close()
+     connection.close()
+     return jsonify({"message":"data updated successfully"}),200
+     
+
 if __name__ == "__main__":
         app.run(debug=True)
-        
