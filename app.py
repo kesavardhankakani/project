@@ -16,7 +16,7 @@ def get_db_connection():
         user = DB_USER,
         password = DB_PASSWORD
     )
-
+#create table
 def create_stu_table():
     connection = get_db_connection()
     cur = connection.cursor()
@@ -32,8 +32,10 @@ def create_stu_table():
     cur.close()
     connection.close()
 
+#call function
 create_stu_table()
 
+#post method
 @app.route("/send_data", methods = ['POST'])
 def send_data():
      data = request.get_json()
@@ -50,6 +52,7 @@ def send_data():
      connection.close()
      return jsonify({"message":"data sended successfully"}),201
 
+#get data by get method
 @app.route("/get_data", methods = ['GET'])
 def get_data():
      connection = get_db_connection()
@@ -67,7 +70,7 @@ def get_data():
           "email":data[3]
      }),200
 
-
+#update data by put method
 @app.route("/update_data", methods = ['PUT'])
 def update_data():
      data = request.get_json()
@@ -85,6 +88,7 @@ def update_data():
      connection.close()
      return jsonify({"message":"data updated successfully"}),200
 
+#delete data by delete method
 @app.route("/delete_data", methods = ['DELETE'])
 def delete_data():
      data = request.get_json()
