@@ -72,7 +72,7 @@ def get_data():
 
 #update data by put method
 @app.route("/update_data", methods = ['PUT'])
-def update_data():
+def update_data(stu_id):
      data = request.get_json()
      stu_id = data.get('stu_id')
      stu_name = data.get('stu_name')
