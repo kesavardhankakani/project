@@ -60,7 +60,7 @@ def get_data():
      cur.execute("""
          select * from stu_table
 """)
-     data = cur.fetchone()
+     data = cur.fetchall()
      cur.close()
      connection.close()
      return jsonify({
@@ -71,10 +71,9 @@ def get_data():
      }),200
 
 #update data by put method
-@app.route("/update_data", methods = ['PUT'])
+@app.route("/update_data/<int:stu_id>", methods = ['PUT'])
 def update_data(stu_id):
      data = request.get_json()
-     stu_id = data.get('stu_id')
      stu_name = data.get('stu_name')
      stu_roll = data.get('stu_roll')
      email = data.get('email')
@@ -89,10 +88,8 @@ def update_data(stu_id):
      return jsonify({"message":"data updated successfully"}),200
 
 #delete data by delete method
-@app.route("/delete_data", methods = ['DELETE'])
-def delete_data():
-     data = request.get_json()
-     stu_id = data.get('stu_id')
+@app.route("/delete_data/<int:stu_id>", methods = ['DELETE'])
+def delete_data(stu_id):
      connection = get_db_connection()
      cur = connection.cursor()
      cur.execute("""
