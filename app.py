@@ -102,5 +102,45 @@ def delete_data(stu_id):
 
      
 
+def create_users():
+     connection = get_db_connection()
+     cur = connection.cursor()
+     cursor.execute("""
+               create table users(id SERIAL PRIMARY KEY,
+               email varchar NOT NULL UNIQUE,
+               password NOT NULL
+               );
+""")
+     connection.commit()
+     connection.close()
+     cur.close()
+
+     #call function
+     create_users()
+@app.route("/register", methods =['post'])
+def register():
+     connection = get_db_connection()
+     cur = connection.cursor()
+     data = request.get_json()
+     email = data.get("email")
+     password = data.get("password")
+     cur.execute(
+            "select * from users where email=%s",
+(email,)
+)
+     user = cur.fetchone()
+     if user:
+          cur.close()
+          connection.close()
+          return jsonify({"message":"email alredy exists "}),200
+     cur.execute("""
+        insert into users(id,email,password) values(%s,%s,%s);
+""",(id,email,password))  
+     connection.commit()
+     cur.close()
+     connection.close()
+     return jsonify({"message":"registered successfully"})
+
+
 if __name__ == "__main__":
         app.run(debug=True)
