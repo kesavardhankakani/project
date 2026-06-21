@@ -21,8 +21,8 @@ def create_tasks_table():
                 id SERIAL PRIMARY KEY,
                 task varchar(20) NOT NULL,
                 status varchar(20) NOT NULL,
-                created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                
+                created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
 """)
     connection.commit()
@@ -36,12 +36,13 @@ def post_task():
     data = request.get_json()
     task = data.get("task")
     status = data.get("status")
-    created = data.get("created")
+    created = datetime.now()
+    updated = datetime.now()
     connection = get_db_connection()
     cur = connection.cursor()
     cur.execute("""
-        insert into tasks_table(task,status,created) values(%s,%s,%s)
-""",(task,status,created))
+        insert into tasks_table(task,status) values(%s,%s)
+""",(task,status))
     connection.commit()
     cur.close()
     connection.close()
@@ -52,7 +53,7 @@ def get_task():
     connection = get_db_connection()
     cur = connection.cursor()
     cur.execute("""
-        select *from tasks_table
+        select * from tasks_table
 """)
     data = cur.fetchall()
     tasks = []
@@ -61,7 +62,8 @@ def get_task():
               "id":row[0],
               "task":row[1],
               "status":row[2],
-              "created":str(row[3])
+              "created":row[3],
+              "updated":row[4]
          })
     connection.commit()
     cur.close()
@@ -73,11 +75,12 @@ def update_task(id):
      data = request.get_json()
      task = data.get("task")
      status = data.get("status")
+     updated = datetime.now()
      connection = get_db_connection()
      cur = connection.cursor()
      cur.execute("""
-        update tasks_table set task=%s,status=%s where id=%s
-""",(task,status,id))
+        update tasks_table set task=%s,status=%s,updated=%s where id=%s
+""",(task,status,updated,id))
      connection.commit()
      cur.close()
      connection.close()
