@@ -6,6 +6,7 @@ DB_HOST = "localhost"
 DB_NAME = "todo"
 DB_USER = "postgres"
 DB_PASSWORD = "kesava"
+#db connection
 def get_db_connection():
     return psycopg2.connect(
         host = DB_HOST,
@@ -28,9 +29,9 @@ def create_tasks_table():
     connection.commit()
     cur.close()
     connection.close()
-    
+#call function  
 create_tasks_table()
-
+#post method
 @app.route("/post_task" , methods = ['POST'])
 def post_task():
     data = request.get_json()
@@ -47,7 +48,7 @@ def post_task():
     cur.close()
     connection.close()
     return jsonify({"message":"tasks enterd successfully.."}),200
-
+#get method
 @app.route("/get_task", methods = ['GET'])
 def get_task():
     connection = get_db_connection()
@@ -69,7 +70,7 @@ def get_task():
     cur.close()
     connection.close()
     return jsonify(tasks),200
-
+#put method
 @app.route("/update_task/<int:id>", methods = ['put'])
 def update_task(id):
      data = request.get_json()
@@ -85,7 +86,7 @@ def update_task(id):
      cur.close()
      connection.close()
      return jsonify({"message":"updated successfully.."}),200
-
+#delete method
 @app.route("/delete_task/<int:id>", methods =['delete'])
 def delete_task(id):
      connection = get_db_connection()
@@ -97,8 +98,6 @@ def delete_task(id):
      cur.close()
      connection.close()
      return jsonify({"message":"deleted successfully.."}),200
-     
-     
 
 if __name__ == "__main__":
         app.run(debug=True)
