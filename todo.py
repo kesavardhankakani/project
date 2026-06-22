@@ -54,7 +54,7 @@ def get_task():
     connection = get_db_connection()
     cur = connection.cursor()
     cur.execute("""
-        select * from tasks_table
+        select * from tasks_table order by id
 """)
     data = cur.fetchall()
     tasks = []
