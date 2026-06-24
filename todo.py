@@ -34,9 +34,8 @@ create_tasks_table()
 #post method
 @app.route("/post_task" , methods = ['POST'])
 def post_task():
-    data = request.get_json()
-    task = data.get("task")
-    status = data.get("status")
+    task = request.json.get("task")
+    status = request.json.get("status")
     created = datetime.now()
     updated = datetime.now()
     connection = get_db_connection()
@@ -73,9 +72,8 @@ def get_task():
 #put method
 @app.route("/update_task/<int:id>", methods = ['put'])
 def update_task(id):
-     data = request.get_json()
-     task = data.get("task")
-     status = data.get("status")
+     task = request.json.get("task")
+     status = request.json.get("status")
      updated = datetime.now()
      connection = get_db_connection()
      cur = connection.cursor()

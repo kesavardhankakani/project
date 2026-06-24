@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask,request, jsonify
 import psycopg2
 
 app =Flask(__name__)
@@ -12,7 +12,6 @@ def get_db_connection():
     return psycopg2.connect(
         host = DB_HOST,
         database = DB_NAME,
-        
         user = DB_USER,
         password = DB_PASSWORD
     )
@@ -38,10 +37,9 @@ create_stu_table()
 #post method
 @app.route("/send_data", methods = ['POST'])
 def send_data():
-     data = request.get_json()
-     stu_name = data.get('stu_name')
-     stu_roll = data.get('stu_roll')
-     email = data.get('email')
+     stu_name = request.json.get('stu_name')
+     stu_roll = request.json.get('stu_roll')
+     email = request.json.get('email')
      connection = get_db_connection()
      cur = connection.cursor()
      cur.execute("""
@@ -73,10 +71,9 @@ def get_data():
 #update data by put method
 @app.route("/update_data/<int:stu_id>", methods = ['PUT'])
 def update_data(stu_id):
-     data = request.get_json()
-     stu_name = data.get('stu_name')
-     stu_roll = data.get('stu_roll')
-     email = data.get('email')
+     stu_name = request.json.get('stu_name')
+     stu_roll = request.json.get('stu_roll')
+     email = request.json.get('email')
      connection = get_db_connection()
      cur = connection.cursor()
      cur.execute("""
@@ -100,46 +97,6 @@ def delete_data(stu_id):
      connection.close()
      return jsonify({"message":"data deletedd successfully"}),200
 
-     
-
-def create_users():
-     connection = get_db_connection()
-     cur = connection.cursor()
-     cursor.execute("""
-               create table users(id SERIAL PRIMARY KEY,
-               email varchar NOT NULL UNIQUE,
-               password NOT NULL
-               );
-""")
-     connection.commit()
-     connection.close()
-     cur.close()
-
-     #call function
-     create_users()
-@app.route("/register", methods =['post'])
-def register():
-     connection = get_db_connection()
-     cur = connection.cursor()
-     data = request.get_json()
-     email = data.get("email")
-     password = data.get("password")
-     cur.execute(
-            "select * from users where email=%s",
-(email,)
-)
-     user = cur.fetchone()
-     if user:
-          cur.close()
-          connection.close()
-          return jsonify({"message":"email alredy exists "}),200
-     cur.execute("""
-        insert into users(id,email,password) values(%s,%s,%s);
-""",(id,email,password))  
-     connection.commit()
-     cur.close()
-     connection.close()
-     return jsonify({"message":"registered successfully"})
 
 
 if __name__ == "__main__":
