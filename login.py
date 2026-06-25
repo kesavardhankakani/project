@@ -41,9 +41,8 @@ def signup():
      username =request.json.get("username")
      email =request.json.get("email")
      password =request.json.get("password")
-     if not username or email or password:
+     if not username or not email or not password:
             return jsonify({"message":"All fields required"}),400
-     
      connection = get_db_connection()
      cur = connection.cursor()
      cur.execute("""
@@ -69,7 +68,8 @@ def signup():
 def login():
       email = request.json.get("email")
       password = request.json.get("password")
-      
+      if not email or password:
+            return jsonify({"message":"all fields required.."})
       connection = get_db_connection()
       cur = connection.cursor()
       cur.execute("""
@@ -78,17 +78,17 @@ def login():
       user = cur.fetchone()
       cur.close()
       connection.close()
-      if not user:
+      if user is None:
             return jsonify({"messsage":"user not found"})
-      hashed_password = user[3]
-      if bcrypt.check_password_hash(hashed_password,password):
+      passwords = user[3]
+      if bcrypt.check_password_hash(passwords,password):
             return jsonify({
                   "message":"login successfull",
                   "userid":user[0],
                   "username":user[1],
                   "email":user[2]
             }),200
-      return jsonify({"message":"invalid password"}),401
+      return jsonify({"message":"invalid password"}),200
 
       
 if __name__ == "__main__":
