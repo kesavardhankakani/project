@@ -1,6 +1,8 @@
 from flask import Flask,request,jsonify
 import psycopg2
 from flask_bcrypt import Bcrypt
+import jwt
+from datetime import datetime, timedelta
 
 app =Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -39,12 +41,8 @@ def signup():
      username =request.json.get("username")
      email =request.json.get("email")
      password =request.json.get("password")
-     if not username:
-           return jsonify({"message":"username required"}),400
-     if not email:
-           return jsonify({"message":"email is required"}),400
-     if not password:
-           return jsonify({"message":"password required"}),400
+     if not username or email or password:
+            return jsonify({"message":"All fields required"}),400
      
      connection = get_db_connection()
      cur = connection.cursor()
