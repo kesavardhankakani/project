@@ -95,8 +95,9 @@ def login():
             connection.close()
             return jsonify({"messsage":"user not found"})
       passwords = user[3]
+      userid = user[0]
       if bcrypt.check_password_hash(passwords,password):
-            token = create_jwt(user[0], user[1])
+            token = create_jwt(userid, username)
             return jsonify({
                   "message":"login successfull",
                   "token":token,
