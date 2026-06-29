@@ -1,6 +1,8 @@
 from flask import Flask,request,jsonify
 import psycopg2
 from flask_bcrypt import Bcrypt
+import jwt
+import datetime
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 HOST = "localhost"
@@ -30,6 +32,17 @@ def create_users_table():
     cur.close()
     connection.close()
 create_users_table()
+
+SECRET_KEY = "this is my keyy"
+def create_jwt(userid,username):
+     payload={
+          "userid":userid,
+          "username":username,
+          "exp":datetime.datetime.utcnow()+datetime.timedelta(minutes=10)
+     }
+     token = jwt.encode(payload,SECRET_KEY,algorithm ="HS256")
+     return token
+
 @app.route("/register",methods =['POST'])
 def register():
     username = request.json.get("username")
@@ -52,11 +65,17 @@ def register():
     hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
     cur.execute("""
     insert into users_table(username,email,password,phno,collegename)values(%s,%s,%s,%s,%s)
+                returning userid
 """,(username,email,hashed_password,phno,collegename))
+    userid = cur.fetchone()[0]
     connection.commit()
     cur.close()
     connection.close()
-    return jsonify({"message":"registered successfully"}),200
+    token = create_jwt(userid,username)
+    return jsonify({"message":"registered successfully",
+                    "token":token
+                    }),200
+
 
 @app.route("/login", methods = ['post'])
 def login():
@@ -77,8 +96,10 @@ def login():
             return jsonify({"messsage":"user not found"})
       passwords = user[3]
       if bcrypt.check_password_hash(passwords,password):
+            token = create_jwt(user[0], user[1])
             return jsonify({
                   "message":"login successfull",
+                  "token":token,
                   "userid":user[0],
                   "username":user[1],
                   "email":user[2],
