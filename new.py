@@ -161,5 +161,41 @@ def create_note():
         "username":username
     }),201
 
+@app.route("/get_note", methods = ['GET'])
+def get_note():
+    token = request.headers.get("Authorization")
+    if not token:
+        return jsonify({"message":"token required"}),401
+    user_data = verify_jwt(token)
+    if user_data is None:
+        return jsonify({"message":"invalid token"}),401
+    userid = user_data["userid"]
+    connection = get_db_connection()
+    cur = connection.cursor()
+    cur.execute("""
+        select*from note where userid =%s
+""",(userid,))
+    notes =cur.fetchall()
+    if not notes:
+        cur.close()
+        connection.close()
+        return jsonify({"message":"no notes found"}),401
+    note_data = []
+    for note in notes:
+        note_data.append({
+            "noteid":note[0],
+            "userid":note[1],
+            "title":note[2],
+            "description":note[3],
+            "created_at":note[4]
+        })
+        cur.close()
+        connection.close()
+        return jsonify({
+            "message":"notes is here..",
+            "notes":note_data
+        }),200
+    
+
 if __name__ == "__main__":
     app.run(debug=True)
