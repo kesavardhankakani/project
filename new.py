@@ -133,36 +133,33 @@ def login():
             }),200
       return jsonify({"message":"invalid password"}),200
       
-@app.route("/create_note", methods=['POST'])
+@app.route("/create_note", methods =['POST'])
 def create_note():
     token = request.headers.get("Authorization")
-    print(token)
     if not token:
-        return jsonify({"error": "Token required"}), 401
+        return jsonify({"message": "token required"}), 401
     user_data = verify_jwt(token)
     if user_data is None:
-        return jsonify({"error": "Invalid or expired token"}), 401
+        return jsonify({"message": "invalid token"}),401
     userid = user_data["userid"]
     username = user_data["username"]
-    title = request.json.get('title')
-    description = request.json.get('description')
+    title = request.json.get("title")
+    description = request.json.get("description")
     if not title or not description:
-        return jsonify({"error": "All fields required"}), 400
+        return jsonify({"message":"all feilds required"}),401
     connection = get_db_connection()
-    cursor = connection.cursor()
-    cursor.execute("""
-        insert into note(userid,title,description)
-        VALUES(%s,%s,%s);
-    """, (userid, title, description))
+    cur = connection.cursor()
+    cur.execute("""
+        insert into note(userid,title,description)values(%s,%s,%s);
+""",(userid,title,description))
     connection.commit()
-    cursor.close()
+    cur.close()
     connection.close()
     return jsonify({
-        "message": "Note creation successfull..",
-        "user_id": userid,
+        "message":"note creation successfull",
+        "userid":userid,
         "username":username
-    }), 201
+    }),201
 
-    
 if __name__ == "__main__":
     app.run(debug=True)
