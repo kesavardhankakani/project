@@ -170,6 +170,7 @@ def get_note():
     if user_data is None:
         return jsonify({"message":"invalid token"}),401
     userid = user_data["userid"]
+    username = user_data["username"]
     connection = get_db_connection()
     cur = connection.cursor()
     cur.execute("""
@@ -179,7 +180,11 @@ def get_note():
     if not notes:
         cur.close()
         connection.close()
-        return jsonify({"message":"no notes found"}),401
+        return jsonify({"message":"no notes found",
+                        "userid":userid,
+                        "username":username
+                        
+                        }),401
     note_data = []
     for note in notes:
         note_data.append({
@@ -192,10 +197,40 @@ def get_note():
         cur.close()
         connection.close()
         return jsonify({
-            "message":"notes is here..",
+            "message":"your notes is here..",
             "notes":note_data
         }),200
     
+@app.route("/update_note/<int:noteid>", methods = ['PUT'])
+def update_note(noteid):
+    token = request.headers.get("Authorization")
+    if not token:
+        return jsonify({"message":"token required"}),400
+    user_data = verify_jwt(token)
+    if user_data is None:
+        return jsonify({"message":"invalid token"}),400
+    userid = user_data["userid"]
+    username = user_data["username"]
+    title = request.json.get("title")
+    description = request.json.get("description")
+    if not title or not description:
+        return jsonify({"message":"all feilds required"}),400
+
+    connection = get_db_connection()
+    cur = connection.cursor()
+    cur.execute("""
+        select*from note where noteid=%s AND userid=%s
+""",(noteid,userid))
+    note = cur.fetchone()
+    cur.execute("""
+        update note set title=%s,description=%s where noteid=%s AND userid=%s
+""",(title,description,noteid,userid))
+    connection.commit()
+    cur.close()
+    connection.close()
+    return jsonify({"message":"note updated successfully",
+                    "note":note
+                    })
 
 if __name__ == "__main__":
     app.run(debug=True)
