@@ -205,16 +205,16 @@ def get_note():
 def update_note(noteid):
     token = request.headers.get("Authorization")
     if not token:
-        return jsonify({"message":"token required"}),400
+        return jsonify({"message":"token required"}),401
     user_data = verify_jwt(token)
     if user_data is None:
-        return jsonify({"message":"invalid token"}),400
+        return jsonify({"message":"invalid token"}),401
     userid = user_data["userid"]
     username = user_data["username"]
     title = request.json.get("title")
     description = request.json.get("description")
     if not title or not description:
-        return jsonify({"message":"all feilds required"}),400
+        return jsonify({"message":"all feilds required"}),401
 
     connection = get_db_connection()
     cur = connection.cursor()
@@ -222,6 +222,10 @@ def update_note(noteid):
         select*from note where noteid=%s AND userid=%s
 """,(noteid,userid))
     note = cur.fetchone()
+    if note is None:
+        cur.close()
+        connection.close()
+        return jsonify({"message":"note not found"}),401
     cur.execute("""
         update note set title=%s,description=%s where noteid=%s AND userid=%s
 """,(title,description,noteid,userid))
@@ -231,6 +235,36 @@ def update_note(noteid):
     return jsonify({"message":"note updated successfully",
                     "note":note
                     })
+
+@app.route("/delete_note/<int:noteid>", methods = ['DELETE'])
+def delete_note(noteid):
+    token = request.headers.get("Authorization")
+    if not token:
+        return jsonify({"message":"token required"}),401
+    user_data = verify_jwt(token)
+    if user_data is None:
+        return jsonify({"message":"invalid token"}),401
+    userid = user_data["userid"]
+
+    connection = get_db_connection()
+    cur = connection.cursor()
+    cur.execute("""
+        select*from note where noteid=%s AND userid=%s
+""",(noteid,userid))
+    note = cur.fetchone()
+    if not note:
+        cur.close()
+        connection.close()
+        return jsonify({"message":"note not found"}),401
+    cur.execute("""
+        delete from note where noteid=%s AND userid=%s
+""",(noteid,userid))
+    connection.commit()
+    cur.close()
+    connection.close()
+    return jsonify({"message":"note deleted successfully",
+                    "note":note
+                    }),200
 
 if __name__ == "__main__":
     app.run(debug=True)
