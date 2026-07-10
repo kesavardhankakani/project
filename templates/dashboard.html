@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+<nav>
+<h2>My Notes</h2>
+<button onclick="logout()">Logout</button>
+</nav>
+<div class="main">
+<div class="left">
+<h2>Create Note</h2>
+<input id="title" placeholder="Title">
+<textarea id="description" placeholder="Description"></textarea>
+<button onclick="createNote()">Create Note</button>
+</div>
+<div class="right">
+<h2>Your Notes</h2>
+<div id="notes"></div>
+</div>
+</div>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+<script>
+    window.onload = function(){
+        getNotes();
+    }
+</script>>
+
+</body>
+</html>

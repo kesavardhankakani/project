@@ -1,4 +1,4 @@
-from flask import Flask,request,jsonify
+from flask import Flask,request,jsonify,render_template
 import psycopg2
 from flask_bcrypt import Bcrypt
 import jwt
@@ -50,6 +50,21 @@ def create_note_table():
      
 create_users_table()
 create_note_table()
+
+@app.route("/")
+def home():
+    return render_template("login.html")
+
+@app.route("/signup")
+def signup():
+    return render_template("signup.html")
+
+@app.route("/dashboard")
+def dashboard():
+    return render_template("dashboard.html")
+
+
+
 SECRET_KEY = "this is my keyy"
 def create_jwt(userid,username):
      payload={
